@@ -1,0 +1,7 @@
+To run empty on Cygwin Linux-like environment you have to do make this steps:
+
+1. Download and install cygserver (http://www.cygwin.com/cygwin-ug-net/using-cygserver.html)
+2. Run /usr/bin/cygserver-config to configure cygserver
+3. Start Windows service (CYGWIN cygserver)
+4. Add value "server" to CYGWIN environment variable (for example: export CYGWIN=server)
+5. Start empty in a common way

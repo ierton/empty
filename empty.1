@@ -1,0 +1,339 @@
+.TH empty 1 "March, 05 2006"
+.SH NAME
+empty \- run processes under pseudo-terminal sessions
+.SH SYNOPSIS
+.br
+.B empty
+\-f [\-i fifo1 \-o fifo2] [-p file.pid] [\-L file.log] command [command args]
+.br
+.B empty
+\-w [\-Sv] [\-t n] [\-i fifo2 \-o fifo1] key1 [answer1] ... [keyX answerX]
+.br
+.B empty
+\-s [\-Sc] \-o fifo1 [request]
+.br
+.B empty
+\-r [\-b size] [\-t n] [\-i fifo2]
+.br
+.B empty
+\-l
+.br
+.B empty
+\-k [pid] [signal]
+.br
+.B empty
+\-h
+.SH DESCRIPTION
+.B empty
+is an utility that provides a simple interface to execute and/or interact with processes under pseudo-terminal sessions. This tool is definitely useful in programming of shell scripts which are used to communicate with interactive programs like telnet or ftp. In some cases
+.B empty
+can be a substitution for TCL/expect or other similar programming tools.
+.PP
+There are several common forms of command lines for
+.B empty.
+But the first execution of
+.B empty
+is usually a start in the daemon mode to
+.B fork
+a new 
+.B command 
+(process) under PTY-session. This can be done with 
+.B \-f
+key. 
+An interface for the input and output data channels of the forked process is performed by two fifo files which names may be specified with
+.B \-i 
+and 
+.B \-o 
+keys. These files are automatically created/deleted any time you start/exit
+.B empty
+daemon, so you must not create them manually. If you did not specify these fifo files in the command line,
+.B empty
+names them by itself basing on its PID and PID of forked PTY process.
+.PP
+At this point any application can easily communicate with forked process by writing data to the input fifo and reading answers from the output fifo, see
+.B EXAMPLES 
+section for the details. To simplify this operations,
+.B empty
+offers an interfase to just
+.B send
+any data (use
+.B \-s
+key), or even to 
+.B watch
+the output fifo for multiple 
+.B keyphrases
+and reply to the input fifo with one of the
+.B responses
+(see
+.B \-w
+key).
+.PP
+.B Note!
+Input fifo for
+.B empty -f ...
+is usually an output fifo for
+.B empty -w 
+and 
+.B empty -s
+forms. And output fifo of
+.B empty -f ...
+is an input fifo for
+.B empty -w ...
+.PP
+If something goes wrong the forked process may be 
+.B killed
+by the standard kill command, or using
+.B \-k
+key of
+.B empty.
+See
+.B \-p 
+option to save PID of empty daemon process.
+.PP
+The following options are available:
+.TP 12
+\-f
+fork, spawn, start or execute a new process specified by the
+.B command
+and its arguments. If you omit fifo files,
+.B empty
+with its job control algorithm will create them under /tmp directory using this templates: empty.PPID.PID.in and empty.PPID.PID.out, here PPID is usually your shell system process ID and PID is system process ID of empty-daemon.
+.TP
+\-s
+send data (request) to the forked process. If fifo file was not specitied with
+.B \-o
+key,
+.B empty 
+will try to find an automatically created fifo file it in /tmp directory. Instead of command line you can send your
+.B request
+or data directly to standard input (stdin) of
+.B empty
+.TP
+\-w
+.B watch
+for one or more
+.B keyphrases
+and if specified send the appropriated
+.B response
+to the input fifo.
+If 
+.B response
+is not set,
+.B empty
+waits for the proper
+.B keyphrase
+then exits. With
+.B \-w
+key
+.B empty
+returns the number of matched keyphrase-response pair, or 255 if fails to find this match (see -t key for details of possible exit on timeout).
+.TP
+\-r
+read from output FIFO one line (default) or one block of data (if 
+.B \-b size 
+was specified). If 
+.B \-t n
+key was placed, exit on timeout.
+.TP
+\-l
+list automatically created jobs by your shell.
+.B NB!
+Your custom jobs, which fifo files you specified with 
+.B \-i 
+and
+.B \-o
+keys, are not displayed. So if you did not specify fifo files with
+.B -i
+and 
+.B -o 
+keys all 
+operations are done under the job marked
+.B current
+.TP
+\-k 
+send
+.B signal
+to the process with
+.B pid.
+If you did not specify pid, 
+.B empty
+tries to find it within the list of automatically created jobs. If
+.B signal
+is omitted the default SIGTERM is used.
+.TP
+\-h
+print short help message and exit
+.TP
+\-i fifo1
+a fifo file, which is used as input for a forked process.
+.TP
+\-o fifo2
+a fifo file, which is used as output for a forked process.
+.TP
+\-L file.log
+This option allows to log the whole
+.B empty
+session to a file. Marks >>> and <<< show the directions of data flow.
+.TP
+\-p file.pid
+Save PID of empty daemon process to a file
+.TP
+\-t n
+If input FIFO is empty, wait for n seconds (default is 10) to receive the
+.B
+keyphrase
+then exit on timeout with 255 code.
+.TP
+\-c
+force
+.B empty
+to use stdin for data or requests.
+.TP
+\-S
+Strip the last character from the input. Works with -s and -w keys
+.TP
+\-v
+kvazi verbose mode. Show all contents of received buffer.
+.SH EXAMPLES
+.TP 0 
+Start a new PTY-session with telnet to localhost:
+.nf
+	empty -f -i in.fifo -o out.fifo -p empty.pid -L empty.log telnet localhost
+.fi
+.TP
+Interact with telnet:
+.nf
+	empty \-w \-i out.fifo \-o in.fifo ogin 'my_user\\n'
+	empty \-w \-i out.fifo \-o in.fifo assword 'my_password\\n'
+.fi
+.TP
+Send commands to telnet with empty:
+.nf
+	empty \-s \-o in.fifo who
+	empty \-s \-o in.fifo "ls \-la /\\n"
+.fi
+.TP
+The same using STDIN:
+.nf
+	echo who | empty \-s \-o in.fifo
+	echo "ls \-la /" | empty \-s \-o in.fifo
+.fi
+.TP
+Just cat output from telnet:
+.nf
+	cat out.fifo
+.fi
+.TP
+Read one line from out.fifo:
+.nf
+	empty \-r -i out.fifo 
+.fi
+.TP
+Send commands to telnet with ordinary echo:
+.nf
+	echo "who am i" > in.fifo
+	echo "uname -a" > in.fifo
+.fi
+.TP
+Kill a process with PID 1234:
+.nf
+	empty -k 1234
+or
+	kill 1234
+.nf
+.TP
+Telnet session with automatically created jobs:
+.nf
+	empty -f telnet localhost
+.fi
+.TP
+Interact with telnet using job control:
+.nf
+	empty \-w ogin 'my_user\\n'
+	empty \-w assword 'my_password\\n'
+.fi
+.TP
+List automatically created jobs:
+.nf
+	empty \-l
+
+	PPID    PID     TYPE    FILENAME
+	479     706     in      /tmp/empty.479.706.in
+	479     706     out     /tmp/empty.479.706.out
+	479     711     in      /tmp/empty.479.711.in
+	479     711     out     /tmp/empty.479.711.out
+
+	479     711     current
+.fi
+.SH SECURITY
+It is considered insecure to send a password in the command line like this:
+.nf
+	
+	empty \-w assword 'my_password\\n'
+
+.fi
+or like this:
+.nf
+
+	empty \-s 'my_password\\n'
+
+.fi
+
+The reason is that the command line arguments are visible to the system while
+.B empty
+is running. Any local user can see them with ps(1), sometimes they are visible
+even remotely with finger(1).
+Also your server may have some monitoring tools which may store the output
+from ps(1) in their logs. There are also other, more complicated ways
+to compromise this information. Generally, you should take command line arguments
+as (possibly) visible to every one unless you really know what you're doing.
+
+.B empty
+with '-s' flag runs quickly in most cases, but still it can hang for a number
+of reasons (like fifo overloading), and even if it runs quick you still cannot
+be sure that no one will see its command line arguments even in this short time.
+.B empty
+with '-w' flag is even worse because it must wait for the keyphrase.
+
+A better way to send the password to the supervised program
+is to read it from file:
+.nf
+
+	empty \-s [common options] <./password-file
+
+.fi
+or from a pipe:
+.nf
+
+	get-password-of-user "$user" |empty -s [common options]
+
+.fi
+You should still make sure that you do not send any password via command line
+while creating this file, and certainly you should set some safe permissions
+to this file AND its directory (with the parent directories) before reading
+the password from the file OR writing the password to it.
+
+Another possible way is to use your shell's builtin (but see below):
+.nf
+
+	echo "$password" |empty \-s [common options]
+
+.fi
+Many shells like bash(1), csh(1) and FreeBSD's sh(1) do not call external
+echo(1) command but use their own builtin echo command. Since no external
+command is started (the shell itself does all that echo(1) must do),
+nothing is shown in the process list. It is beyond this manual page to discuss
+the way to make sure that your shell uses the builtin command.
+.SH RETURN VALUES
+If any error occurs
+.B empty
+usually exits with code 255. Otherwise zero or some positive value (see 
+.B \-w
+key) is returned. 
+.SH SEE ALSO
+expect(1), chat(8)
+.SH AUTHOR
+.B empty
+was made by Mikhail E. Zakharov. This software was based on the basic idea of pty version 4.0 Copyright (c) 1992, Daniel J. Bernstein but no code was ported from pty4.
+SECURITY section of this manual page was contributed by Sergey Redin.
+

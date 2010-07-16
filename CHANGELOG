@@ -1,0 +1,166 @@
+27.07.2009 0.6.18b
+--------------------------------------------------------------------------------
+* "Fatal select(): Success" Artifact under Linux fixed.
+	 Thanks Bernd Schuller and Dennis Schridde for discovering the bug
+
+23.04.2009 0.6.17b
+--------------------------------------------------------------------------------
+* Empty -w gets 100% cpu usage under Linux. Fixed.
+	 Thanks "David Hofstee" <davidh@blinker.nl> for the bugfix
+* Man-page -r section fixed
+
+21.11.2008 0.6.16b
+--------------------------------------------------------------------------------
+* Terminal emulation is more complex now. Great thanks:
+	"lang qiu" <qiulang@gmail.com> who found the problem and the way to
+		fix it under Solaris OS.
+	"Alexey Rudometov" <rudometov@u-systems.ru>
+		for reproduction of the bug and testing under Solaris
+* Wrong ${PREFIX} in Makefile from previous release fixed
+* Marks >>> and <<< added to logfile to indicate direction of stream
+* Man page updated
+
+27.01.2008 0.6.15b
+--------------------------------------------------------------------------------
+* Fixed fatal bug under FreeBSD-6.3 Release new PTY scheme. Thanks to
+	"Sergey Yaroshevsky" <astraserg@proc.ru> for discovering the bug
+* Minor changes in Makefile to handle ${PREFIX}
+
+29.11.2007 0.6.14b
+--------------------------------------------------------------------------------
+* Trivial bug in handling of strncpy() functions fixed
+
+24.10.2007 0.6.12b
+--------------------------------------------------------------------------------
+* mfifo() bug under OpenBSD fixed
+* Empty is now fully functional under OpenBSD
+	Great thanks to Vincenzo Maggio (vince.maggio@gmail.com) for deep 
+		debugging under OpenBSD
+	Thanks to Aleksey Kozlov (avtolik@newmail.ru) for testing under OpenBSD
+	Thanks to Roman Gorohov (idle@idle.org.ru) for the free account at
+		OpenBSD-4.1 box
+* string family functions were replaced with more secure equivalents
+* regular expressions introduced
+* SECURITY section of man page contributed by Sergey Redin (sergey@redin.info)
+
+09.01.2007 0.6.11b
+--------------------------------------------------------------------------------
+* conversion types fixed
+* AIX and OSF1 code by Sylvain DEGUT merged to current source code
+* macros optimizations
+* syntax fixed at examples/em_ssh_2.sh script
+* Makefile update
+
+12.2006 0.6.10-degut - version introduced by Sylvain DEGUT (sylvain.degut@neuf.fr)
+--------------------------------------------------------------------------------
+Empty is fully operational on:
+	AIX: 4.3, 5.1, 5.2, 5.3
+	HP-UX: 11.00, 11.11, 11.23 (pa-risc, itanium)
+	Linux RedHat and Suse (32 and 64bits)
+	OSF1: 4.0, 5.1
+	Solaris: 6,8,10 (sparc,x86)
+				
+15.04.2006 0.6.10a
+--------------------------------------------------------------------------------
+* succesfully tested on HP-UX 11.11 PA-RISC1.1 (9000/777)
+* Empty with experimental status ported to Cygwin Linux-like environment
+
+19.03.2006 0.6.9b
+--------------------------------------------------------------------------------
+* Empty port of FreeBSD ports collection updated
+* Bugs with permissions on session-log finally fixed thanks to
+	"Sergey Yaroshevsky" <astraserg@proc.ru> for discovering the problem
+* HP-UX port is ready, successfully tested on HP-UX 11.00
+	Thanks to Hewlett Packard AO Russia and personally to Andrew Kuchinskyi
+	and Denis Karzhavin for C110 (9000/777) workstation
+* Several code optimizations
+* Documentation updated
+
+18.02.2006 0.6.8b
+--------------------------------------------------------------------------------
+* ATTENTION!!! Incompatibility changes were made!!! To control newline behavior
+	\r and \n must be used to send CR and LF characters.
+* Old -n and -R options were removed
+* Option -p can be specified to save PID of Empty process
+* Bug with large PIDs in simple job control fixed
+* Patch for successful compilation under OpenBSD-3.8
+	by "Elisender" <allex_9@ngs.ru> included
+* Session log file permissions are fixed under Solaris and Linux
+* Documentation updated
+
+26.01.2006 0.6.7b - This version was never publicized
+--------------------------------------------------------------------------------
+* With option -R Empty sends \r\n (0x0D 0x0A) instead of \n (0x0A).
+	Thanks "Sergey V" <flexdsl@mail.ru> for the idea.
+* Several minor bugs fixed
+
+23.12.2005 0.6.6b
+--------------------------------------------------------------------------------
+* Bug in IPCS on removing semaphores for the dead sessions (fixed). 
+Thanks to "Dmitry S. Vlasov" (vlasov@quantum.ru) for discovering it.
+
+16.12.2005 0.6.5b
+--------------------------------------------------------------------------------
+* Option -L enables logging all input and output to the file
+* Bug with getopt() under Linux which was discovered 
+	by "Alex Slyotov" <aslyotov@gmail.com>. Fixed
+* Option -r allows to read a line or a block (if -b size is specified) of data
+	from input FIFO. Thanks to "Alex Slyotov" (aslyotov@gmail.com) for the
+	idea.
+* Sucessfully tested under FreeBSD 6.0
+
+12.11.2005 0.6.4b
+--------------------------------------------------------------------------------
+* Empty fails (now fixed) to remove semaphores on  kill-signals. The bug was 
+discovered by Dmitry S. Vlasov vlasov@quantum.ru. Thanks!
+
+06.11.2005 0.6.3b
+--------------------------------------------------------------------------------
+* Empty failed to compile under Solaris-8 with gcc. 
+	Thanks  to sdio (sdio4lor@gmail.com). Fixed.
+* Additional, lots of IPC bugs were discovered under SVR4 branch, all of them
+	are fixed, I hope.
+* grantpt() under Solaris and Unixware fixed
+
+30.10.2005 0.6.2b
+--------------------------------------------------------------------------------
+* Option -w supports multiple pairs of "key-response"
+* Syntax getting harder to understand so I had removed STDIN support for -w key
+* Makefile reorganized: Solaris and UnixWare are moved to Makefile.SVR4
+* Semaphores implemented to replase -r key timeouts. Awfull -r key was removed 
+	once and I hope forever!
+* Several bugs fixed
+* Documentation updated
+
+25.09.2005 0.6.1b
+--------------------------------------------------------------------------------
+* Several bugs fixed
+* The -k key works with job control now
+* Errors with creating FIFOs fixed. Thanks "Michael" (michael.auckland@gmail.com)
+* The -r key returned
+* Examples and manual page updated
+
+18.09.2005 0.6.0b
+--------------------------------------------------------------------------------
+* Stdin and pipes constructions can be used with -s and -w keys.
+* Simple job control was introduced
+
+25.08.2005 0.5.12b
+--------------------------------------------------------------------------------
+* Fixed non critical warnings at compilation time on FreeBSD-5.4
+* SunOS-cc and SunOS-gcc targets added to Makefile to support native CC and GCC
+	 compilers. Default SunOS is equal to SunOS-gcc now.
+
+01.05.2005 0.5.11b
+--------------------------------------------------------------------------------
+* wait4child() bug fixed
+* sleep() bug removed
+* Timeout "-t" key changed its behavior. See man
+* Syslog messaging for daemon mode added
+* Several minor bugs fixed
+* Several new bugs were added :)
+
+17.04.2005 0.5.5b
+--------------------------------------------------------------------------------
+* Software published
+
