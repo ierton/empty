@@ -105,7 +105,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.18b" 
+#define version "0.6.19b" 
 
 /* -------------------------------------------------------------------------- */
 static void usage(void);
@@ -874,8 +874,10 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 	struct	timeval tv;
 
 	int	argt = 0;
-	int	largv = 0; 
+	int bread = 0;
 	char	*resp = NULL;
+	int found;
+	int i;
 
 
 	stime = time(0);
@@ -893,11 +895,10 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 			perrx(255, "Fatal select()");
 
 		if (n > 0 && FD_ISSET(ifd, &rfd)) {
-			largv = 0;
-			if ((cc = read(ifd, buf + largv, sizeof(buf) - largv)) > 0) {
+			if ((cc = read(ifd, buf + bread, sizeof(buf)-bread-1)) > 0) {
 				stime = time(0);
 				
-				buf[cc + largv] = '\0';
+				buf[cc + bread] = '\0';
 
 				if (vflg)
 					(void)printf("%s", buf);
@@ -914,10 +915,17 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 					return (argt + 1) / 2;
 				}
 
-				if (largv == 0)
-					largv = longargv(argc, argv);
+				for(found=0,i=bread; i<bread+cc; i++) {
+					if(buf[i] == '\n') {
+						memmove(buf, buf+i+1, bread+cc-i-1);
+						bread = bread+cc-i-1;
+						found = 1;
+						break;
+					}
+				}
 
-				memmove(buf, buf + cc - largv, largv);
+				if(!found) 
+					bread += cc;
 			}
 
 			if (cc <= 0) {
