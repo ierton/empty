@@ -105,7 +105,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.19b" 
+#define version "0.6.22b" 
 
 /* -------------------------------------------------------------------------- */
 static void usage(void);
@@ -123,6 +123,15 @@ int regmatch(const char *string, char *pattern, regex_t *re);
 int watch4str(int ifd, int ofd, int argc, char *argv[],
 		int Sflg, int vflg, int cflg, int timeout);
 int parsestr(char *dst, char *src, int len, int Sflg);
+
+int g_debug = 0;
+
+#define DBG(s, args...) \
+	do { \
+		if (g_debug) \
+			fprintf(stderr, "%s: " s "\n", __FUNCTION__, ## args); \
+	} while (0)
+
 
 /* -------------------------------------------------------------------------- */
 int     master, slave;
@@ -207,9 +216,9 @@ int main (int argc, char *argv[]) {
 #endif
 
 #ifndef __linux__
-	while ((ch = getopt(argc, argv, "Scvhfrb:kwslp:i:o:t:L:")) != -1)
+	while ((ch = getopt(argc, argv, "Scvhfrb:kwslp:i:o:t:L:d")) != -1)
 #else
-	while ((ch = getopt(argc, argv, "+Scvhfrb:kwslp:i:o:t:L:")) != -1)
+	while ((ch = getopt(argc, argv, "+Scvhfrb:kwslp:i:o:t:L:d")) != -1)
 #endif
 		switch (ch) {
 			case 'f':
@@ -277,6 +286,9 @@ int main (int argc, char *argv[]) {
 				break;
 			case 'v':
 				vflg = 1;
+				break;
+			case 'd':
+				g_debug = 1;
 				break;
 			case 'h':
 			default:
@@ -642,12 +654,12 @@ int main (int argc, char *argv[]) {
 static void usage(void) {
 	(void)fprintf(stderr,
 "%s-%s usage:\n\
-empty -f [-i fifo1 -o fifo2] [-p file.pid] [-L file] command [command args]\n\
-empty -w [-Sv] [-t n] [-i fifo2 -o fifo1] key1 [answer1] ... [keyX answerX]\n\
-empty -s [-Sc] [-o fifo1] [request]\n\
-empty -r [-b size] [-t n] [-i fifo1]\n\
-empty -l\n\
-empty -k [pid] [signal]\n\
+empty [-d] -f [-i fifo1 -o fifo2] [-p file.pid] [-L file] command [command args]\n\
+empty [-d] -w [-Sv] [-t n] [-i fifo2 -o fifo1] key1 [answer1] ... [keyX answerX]\n\
+empty [-d] -s [-Sc] [-o fifo1] [request]\n\
+empty [-d] -r [-b size] [-t n] [-i fifo1]\n\
+empty [-d] -l\n\
+empty [-d] -k [pid] [signal]\n\
 empty -h\n", program, version);
 	exit(255);
 }
@@ -865,6 +877,20 @@ int regmatch(const char *string, char *pattern, regex_t *re) {
  	return(255);	/* Not reached */
 }
 
+char* debug_buffer(const char* b) 
+{
+	static char b2[BUFSIZ];
+	int i;
+	for(i=0; i<strlen(b); i++)
+		switch(b[i]) {
+			case '\n' : b2[i]='|'; break;
+			case '\r' : b2[i]='\\'; break;
+			default: b2[i] = b[i]; break;
+		}
+	b2[i] = 0;
+	return b2;
+}
+
 /* -------------------------------------------------------------------------- */
 int watch4str(int ifd, int ofd, int argc, char *argv[], 
 		int Sflg, int vflg, int cflg, int timeout) {
@@ -875,7 +901,7 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 
 	int	argt = 0;
 	int bread = 0;
-	char	*resp = NULL;
+	char *resp = NULL;
 	int found;
 	int i;
 
@@ -883,6 +909,7 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 	stime = time(0);
 	tv.tv_sec = timeout;
 	tv.tv_usec = 0;
+	buf[0] = '\0';
 
 	FD_ZERO(&rfd);
 	for (;;) {
@@ -895,15 +922,19 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 			perrx(255, "Fatal select()");
 
 		if (n > 0 && FD_ISSET(ifd, &rfd)) {
+			DBG("buffer:%s; size:%d", debug_buffer(buf), bread);
 			if ((cc = read(ifd, buf + bread, sizeof(buf)-bread-1)) > 0) {
 				stime = time(0);
 				
 				buf[cc + bread] = '\0';
 
+				DBG("buffer:%s; size:%d (%d new)", debug_buffer(buf), bread, cc);
+
 				if (vflg)
-					(void)printf("%s", buf);
+					(void)printf("%s", buf+bread);
 
 				if ((argt = checkgr(argc, argv, buf, 0)) > 0) {
+					DBG("match (buffer: %s|%d)", debug_buffer(buf), cc);
 					if ((resp = argv[argt])) {
 						/* Nb chars for buf */
 						bl = parsestr(buf, resp, strlen(resp), Sflg);
@@ -917,6 +948,7 @@ int watch4str(int ifd, int ofd, int argc, char *argv[],
 
 				for(found=0,i=bread; i<bread+cc; i++) {
 					if(buf[i] == '\n') {
+						DBG("flushing buffer using: %s (i=%d)", debug_buffer(buf+i+1),i);
 						memmove(buf, buf+i+1, bread+cc-i-1);
 						bread = bread+cc-i-1;
 						found = 1;
