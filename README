@@ -1,11 +1,27 @@
+empty-0.6.22i 
+=============
+
+This is a version of original emtpy tool located at
+http://empty.sourceforge.net/. The fork contains several bugfixes and
+improvements.  
+
+	Please, send all reports, patches and suggestions to 
+	ierton@gmail.com. Developers are welcome.
+
+Sptember 26, 2010
+Sergey Mironov
+ierton@gmail.com
+
+
+ORIGINAL README
+===============
+
 empty-0.6.18b -- run applications under pseudo-terminal (PTY) sessions and
 replace TCL/Expect with a simple tool under your favorite shell (sh, bash,
 csh, tcsh, ksh, zsh, etc)
 
 WARNING!
---------------------------------------------------------------------------------
 This version of the software has BUGS, so be careful and use it on you own risk!
---------------------------------------------------------------------------------
 
 INSTALLATION
 	for all known *BSD systems and Linux run:

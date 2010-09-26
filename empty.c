@@ -105,7 +105,7 @@
 
 #define tmpdir "/tmp"
 #define program "empty"
-#define version "0.6.22b" 
+#define version "0.6.22i" 
 
 /* -------------------------------------------------------------------------- */
 static void usage(void);
