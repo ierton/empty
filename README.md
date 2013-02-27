@@ -7,7 +7,7 @@ With empty you can run applications under pseudo-terminal (PTY) sessions and
 replace TCL/Expect with a simple tool under your favorite shell (sh, bash,
 csh, tcsh, ksh, zsh, etc).
 
-This is a version of original emtpy tool located at
+This is a clone of original emtpy tool located at
 [SourceForge](http://empty.sourceforge.net/).
 The fork contains several bugfixes and improvements.  
 
@@ -34,8 +34,8 @@ Usage
 Bugs
 ----
 
-Codebase is quite messy so they probably exist. Fortunately, this is a one-file
-application so patches are welcome.
+Codebase is quite messy so they probably exist. Fortunately, this is an one-file
+application so fixing it should be easy job. Patches are always welcome.
 
 Sergey Mironov
 ierton@gmail.com
