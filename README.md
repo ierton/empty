@@ -1,7 +1,7 @@
 Empty 
 =====
 
-By Mikhail Zakharov, Sergey Mironov, ant others, see README.old
+By Mikhail Zakharov, Sergey Mironov and others, see README.old
 
 With empty you can run applications under pseudo-terminal (PTY) sessions and
 replace TCL/Expect with a simple tool under your favorite shell (sh, bash,
